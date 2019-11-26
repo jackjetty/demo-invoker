@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: demo-invoker
+  http:
+    converters:
+      preferred-json-mapper: gson
+server:
+  port: 21000
+  #${random.int[10000,19999]}
+  name: demo-invoker
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    root: info
+    com.csde: DEBUG
+
+feign:
+  hystrix:
+    enabled: true
+
+hystrix:
+  threadpool:
+    default:
+      coreSize: 40
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: THREAD
+          thread:
+            timeoutInMilliseconds: 5000
+#Ribbon超时与Hystrix超时问题，为了确保Ribbon重试的时候不被熔断，我们就需要让Hystrix的超时时间大于Ribbon的超时时间，否则Hystrix命令超时后，该命令直接熔断，重试机制就没有任何意义了。
+#一个半开的状态，如果这一次命令执行成功，则会关闭断路器并清空链路的健康信息，如果执行失败，断路器会继续保持打开的状态
+#休眠期默认值为5秒
+
+ribbon:
+  ReadTimeout: 6000
+  ConnectTimeout: 6000
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 1
+  OkToRetryOnAllOperations: false
