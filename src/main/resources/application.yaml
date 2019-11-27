@@ -25,18 +25,23 @@ hystrix:
       coreSize: 40
   command:
     default:
+      circuitBreaker:
+        enabled: true
+        requestVolumeThreshold: 2
+        sleepWindowInMilliseconds: 15000
+        errorThresholdPercentage: 50
       execution:
         isolation:
           strategy: THREAD
           thread:
-            timeoutInMilliseconds: 5000
+            timeoutInMilliseconds: 3000
 #Ribbon超时与Hystrix超时问题，为了确保Ribbon重试的时候不被熔断，我们就需要让Hystrix的超时时间大于Ribbon的超时时间，否则Hystrix命令超时后，该命令直接熔断，重试机制就没有任何意义了。
 #一个半开的状态，如果这一次命令执行成功，则会关闭断路器并清空链路的健康信息，如果执行失败，断路器会继续保持打开的状态
 #休眠期默认值为5秒
 
 ribbon:
-  ReadTimeout: 6000
-  ConnectTimeout: 6000
+  ReadTimeout: 4000
+  ConnectTimeout: 4000
   MaxAutoRetries: 1
   MaxAutoRetriesNextServer: 1
   OkToRetryOnAllOperations: false
